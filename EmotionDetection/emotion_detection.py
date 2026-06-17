@@ -7,26 +7,45 @@ def emotion_detector(text_to_analyze):
     myobj = { "raw_document": { "text": text_to_analyze } }
     response = requests.post(url, json = myobj, headers=header)
 
+    if response.status_code == 200:
+        # Parse the response from the API
+        formatted_response = json.loads(response.text)
+        anger_score = formatted_response["emotionPredictions"][0]["emotion"]["anger"]
+        disgust_score = formatted_response["emotionPredictions"][0]["emotion"]["disgust"]
+        fear_score = formatted_response["emotionPredictions"][0]["emotion"]["fear"]
+        joy_score = formatted_response["emotionPredictions"][0]["emotion"]["joy"]
+        sadness_score = formatted_response["emotionPredictions"][0]["emotion"]["sadness"]
 
-    # Parse the response from the API
-    formatted_response = json.loads(response.text)
-    anger_score = formatted_response["emotionPredictions"][0]["emotion"]["anger"]
-    disgust_score = formatted_response["emotionPredictions"][0]["emotion"]["disgust"]
-    fear_score = formatted_response["emotionPredictions"][0]["emotion"]["fear"]
-    joy_score = formatted_response["emotionPredictions"][0]["emotion"]["joy"]
-    sadness_score = formatted_response["emotionPredictions"][0]["emotion"]["sadness"]
-
-    output = {
-        'anger': anger_score,
-        'disgust': disgust_score,
-        'fear': fear_score,
-        'joy': joy_score,
-        'sadness': sadness_score,
-    }
-    output["dominant_emotion"] = max(output, key=output.get)
-    # Return the label and score in a dictionary
-    return output
-
+        output = {
+            'anger': anger_score,
+            'disgust': disgust_score,
+            'fear': fear_score,
+            'joy': joy_score,
+            'sadness': sadness_score,
+        }
+        output["dominant_emotion"] = max(output, key=output.get)
+        # Return the label and score in a dictionary
+        return output
+    elif response.status_code == 500:
+        output = {
+            'anger': None,
+            'disgust': None,
+            'fear': None,
+            'joy': None,
+            'sadness': None,
+            'dominant_emotion': None
+        }
+        return output
+    else:
+        output = {
+            'anger': None,
+            'disgust': None,
+            'fear': None,
+            'joy': None,
+            'sadness': None,
+            'dominant_emotion': None
+        }
+        return output
 
 if __name__ == "__main__":
     output = emotion_detector("I love this new technology.")
